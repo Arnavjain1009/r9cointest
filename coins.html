@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coin Data Table</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .table-container {
+      width: 90%;
+      margin: 20px auto;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 18px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Coin Data Table</h1>
+  <div class="table-container">
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>Coin ID</th>
+          <th>Current Value</th>
+          <th>Holder ID</th>
+          <th>Notes</th>
+          <th>Purchase DateTime</th>
+          <th>Purchase Price</th>
+          <th>Quantity</th>
+          <th>Valuation DateTime</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchData() {
+      try {
+        const response = await fetch('https://r9j.pythonanywhere.com/myCoins'); 
+        const data = await response.json();
+        populateTable(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    function populateTable(data) {
+      const tableBody = document.querySelector('#data-table tbody');
+      data.forEach(item => {
+        const row = document.createElement('tr');
+
+        const coinIdCell = document.createElement('td');
+        coinIdCell.textContent = item.coinid;
+        row.appendChild(coinIdCell);
+
+        const currentValueCell = document.createElement('td');
+        currentValueCell.textContent = item.currentValue;
+        row.appendChild(currentValueCell);
+
+        const holderIdCell = document.createElement('td');
+        holderIdCell.textContent = item.holderid;
+        row.appendChild(holderIdCell);
+
+        const notesCell = document.createElement('td');
+        notesCell.textContent = item.notes;
+        row.appendChild(notesCell);
+
+        const purchaseDtTmCell = document.createElement('td');
+        purchaseDtTmCell.textContent = item.purchaseDtTm;
+        row.appendChild(purchaseDtTmCell);
+
+        const purchasePriceCell = document.createElement('td');
+        purchasePriceCell.textContent = item.purchasePrice;
+        row.appendChild(purchasePriceCell);
+
+        const qtyCell = document.createElement('td');
+        qtyCell.textContent = item.qty;
+        row.appendChild(qtyCell);
+
+        const valuationDtTmCell = document.createElement('td');
+        valuationDtTmCell.textContent = item.valuationDtTm;
+        row.appendChild(valuationDtTmCell);
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Fetch and display data when the page loads
+    window.onload = fetchData;
+  </script>
+</body>
+</html>
