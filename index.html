@@ -1,8 +1,4 @@
-
-<head>
-  <script src="https://www.google.com/recaptcha/enterprise.js?render=6LdOUEkqAAAAAATFqj9EsLhvibVGrJ0w100TTUNF"></script>
-  <!-- Your code -->
-</head><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,9 +15,10 @@
             justify-content: center;
             min-height: 100vh;
             background: linear-gradient(135deg, #ff7e5f, #feb47b);
-            transition: background 1s ease-in-out;
+            transition: background 1s ease-in-out; /* Smooth transition */
         }
 
+        /* Apply plain black background for desktop */
         @media (min-width: 768px) {
             body {
                 background: black;
@@ -108,8 +105,31 @@
             margin: 10px 0;
         }
     </style>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script>
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function getRandomGradient() {
+            const color1 = getRandomColor();
+            const color2 = getRandomColor();
+            return `linear-gradient(135deg, ${color1}, ${color2})`;
+        }
+
+        function changeBackgroundGradient() {
+            document.body.style.background = getRandomGradient();
+        }
+
+        // Only apply random gradient on small screens (mobile)
+        if (window.innerWidth < 768) {
+            setInterval(changeBackgroundGradient, 3000);
+        }
+
         function showModal(modalId) {
             document.getElementById(modalId).style.display = 'block';
         }
@@ -130,11 +150,6 @@
         }
 
         function generateHolderId() {
-            const response = grecaptcha.getResponse();
-            if (response.length === 0) {
-                alert("Please complete the CAPTCHA.");
-                return;
-            }
             const randomId = Math.floor(100 + Math.random() * 900);
             alert('Your Holder ID is: ' + randomId);
         }
@@ -168,7 +183,6 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('registerModal')">&times;</span>
             <h2>Register</h2>
-            <div class="g-recaptcha" data-sitekey="6LdOUEkqAAAAAATFqj9EsLhvibVGrJ0w100TTUNF"></div>
             <button onclick="generateHolderId()" class="btn btn-primary">Create Holder ID</button>
         </div>
     </div>
