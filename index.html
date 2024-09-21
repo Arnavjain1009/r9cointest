@@ -15,7 +15,7 @@
             justify-content: center;
             min-height: 100vh;
             background: linear-gradient(135deg, #ff7e5f, #feb47b);
-            transition: background 1s ease-in-out; /* Smooth transition */
+            transition: background 1s ease-in-out;
         }
 
         /* Apply plain black background for desktop */
@@ -104,7 +104,51 @@
             font-size: 1.2rem;
             margin: 10px 0;
         }
+
+        .response-message {
+            margin-top: 15px;
+            color: green;
+        }
+        .error-message {
+            color: red;
+        }
     </style>
+</head>
+<body>
+    <div class="container">
+        <h1>R9COIN</h1>
+        <p>The future of currency</p>
+        <button onclick="showModal('loginModal')" class="btn btn-primary">Login</button>
+        <button onclick="showModal('registerModal')" class="btn btn-secondary">Register Now</button>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm">
+                <label for="username">Username (Holder ID)</label>
+                <input type="text" id="username" name="username" required class="input">
+                
+                <label for="coin_id">Coin ID</label>
+                <input type="text" id="coin_id" name="coin_id" required class="input">
+
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <div id="responseMessage" class="response-message"></div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Register</h2>
+            <button onclick="generateHolderId()" class="btn btn-primary">Create Holder ID</button>
+        </div>
+    </div>
+
     <script>
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
@@ -138,53 +182,51 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        function handleLogin() {
-            const holderId = document.getElementById('holderId').value;
-            const coinKey = document.getElementById('coinKey').value;
-            if (holderId && coinKey) {
-                alert('Login successful!');
-                closeModal('loginModal');
-            } else {
-                alert('Please enter both Holder ID and CoinKey.');
+        // Handle the login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent form from reloading the page
+
+            // Get form data
+            const username = document.getElementById('username').value;
+            const coin_id = document.getElementById('coin_id').value;
+
+            // Create a FormData object to send multipart/form-data
+            const formData = new FormData();
+            formData.append('holder_id', username);
+            formData.append('coin_id', coin_id);
+
+            try {
+                // Send a POST request to the external API
+                const response = await fetch('https://r9j.pythonanywhere.com/login', { // Replace with your API URL
+                    method: 'POST',
+                    body: formData
+                });
+
+                // Parse the response
+                const result = await response.json();
+
+                // Display the response on the same page
+                const responseMessage = document.getElementById('responseMessage');
+                
+                if (response.ok) {
+                    responseMessage.innerHTML = `<span>Login successful. Session ID: ${result.session_id}</span>`;
+                    responseMessage.classList.remove('error-message');
+                    responseMessage.classList.add('response-message');
+                } else {
+                    responseMessage.innerHTML = `<span class="error-message">Error: ${result.message}</span>`;
+                }
+
+            } catch (error) {
+                // Handle network errors
+                const responseMessage = document.getElementById('responseMessage');
+                responseMessage.innerHTML = `<span class="error-message">An error occurred: ${error.message}</span>`;
             }
-        }
+        });
 
         function generateHolderId() {
             const randomId = Math.floor(100 + Math.random() * 900);
             alert('Your Holder ID is: ' + randomId);
         }
     </script>
-</head>
-<body>
-    <div class="container">
-        <h1>R9COIN</h1>
-        <p>The future of currency</p>
-        <button onclick="showModal('loginModal')" class="btn btn-primary">Login</button>
-        <button onclick="showModal('registerModal')" class="btn btn-secondary">Register Now</button>
-    </div>
-
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('loginModal')">&times;</span>
-            <h2>Login</h2>
-            <div>
-                <label for="holderId" class="block">Enter Holder ID</label>
-                <input type="text" id="holderId" maxlength="3" class="input" placeholder="XXX">
-            </div>
-            <div>
-                <label for="coinKey" class="block">Enter CoinKey</label>
-                <input type="text" id="coinKey" maxlength="19" class="input" placeholder="XXXX-XXXX-XXXX-XXXX">
-            </div>
-            <button onclick="handleLogin()" class="btn btn-primary">Login</button>
-        </div>
-    </div>
-
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('registerModal')">&times;</span>
-            <h2>Register</h2>
-            <button onclick="generateHolderId()" class="btn btn-primary">Create Holder ID</button>
-        </div>
-    </div>
 </body>
 </html>
