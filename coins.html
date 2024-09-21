@@ -74,10 +74,40 @@
   </div>
 
   <script>
+    // Function to get a cookie value by name
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
     async function fetchData() {
+      const holderId = getCookie('holder_id');
+      //const sessionId = getCookie('session_id');
+      const sessionId = 'mySessionID';
+
+      if (!holderId || !sessionId) {
+        console.error('Holder ID or Session ID not found in cookies.');
+        return;
+      }
+
+      console.info("Holder ID in my Cookie is - " + holderId);
+      const formData = new FormData();
+      formData.append('holder_id', holderId);
+      formData.append('session_id', sessionId);
+
       try {
-        const response = await fetch('https://r9j.pythonanywhere.com/myCoins'); 
+        const response = await fetch('https://r9j.pythonanywhere.com/myCoins', {
+          method: 'POST',
+          body: formData
+        });
+        
         const data = await response.json();
+        
+        if (!response.ok) {
+            alert("Error:" + data.message);
+        }
+        
         populateTable(data);
       } catch (error) {
         console.error('Error fetching data:', error);
