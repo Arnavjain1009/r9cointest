@@ -234,10 +234,10 @@
                     responseMessage.classList.remove('error-message');
                     responseMessage.classList.add('response-message');
 
-                    // Redirect to coins.html after 2 seconds
+                    // Redirect to coins.html after 0.2 seconds
                     setTimeout(() => {
                         window.location.href = 'coins.html';
-                    }, 2000);
+                    }, 200);
                 } else {
                     responseMessage.innerHTML = `<span class="error-message">Error: ${result.message}</span>`;
                 }
