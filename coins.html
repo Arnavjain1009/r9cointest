@@ -83,9 +83,8 @@
 
     async function fetchData() {
       const holderId = getCookie('holder_id');
-      //const sessionId = getCookie('session_id');
-      const sessionId = 'mySessionID';
-
+      const sessionId = getCookie('session_id');
+      
       if (!holderId || !sessionId) {
         console.error('Holder ID or Session ID not found in cookies.');
         return;
@@ -106,6 +105,7 @@
         
         if (!response.ok) {
             alert("Error:" + data.message);
+            window.location.replace("/");
         }
         
         populateTable(data);
