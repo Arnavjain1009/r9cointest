@@ -49,6 +49,37 @@
     tr:hover {
       background-color: #ddd;
     }
+
+    .empty-message {
+      text-align: center;
+      margin-top: 20px;
+      color: #555;
+    }
+
+    .squircle {
+      width: 300px;
+      height: 200px;
+      background-color: #fff;
+      border-radius: 30px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      margin: 20px auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .buy-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .buy-button:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
@@ -71,6 +102,12 @@
         <!-- Data will be inserted here -->
       </tbody>
     </table>
+    <div class="empty-message" id="empty-message"></div>
+  </div>
+
+  <div class="squircle">
+    <h2>Buy R9Coins</h2>
+    <button class="buy-button" onclick="buyR9Coins()">Buy Now</button>
   </div>
 
   <script>
@@ -116,43 +153,56 @@
 
     function populateTable(data) {
       const tableBody = document.querySelector('#data-table tbody');
-      data.forEach(item => {
-        const row = document.createElement('tr');
+      const emptyMessage = document.getElementById('empty-message');
+      tableBody.innerHTML = ''; // Clear previous data
+      emptyMessage.textContent = ''; // Clear previous message
 
-        const coinIdCell = document.createElement('td');
-        coinIdCell.textContent = item.coinid;
-        row.appendChild(coinIdCell);
+      if (data.length === 0) {
+        emptyMessage.textContent = 'You have no R9Coins.';
+      } else {
+        data.forEach(item => {
+          const row = document.createElement('tr');
 
-        const currentValueCell = document.createElement('td');
-        currentValueCell.textContent = item.currentValue;
-        row.appendChild(currentValueCell);
+          const coinIdCell = document.createElement('td');
+          coinIdCell.textContent = item.coinid;
+          row.appendChild(coinIdCell);
 
-        const holderIdCell = document.createElement('td');
-        holderIdCell.textContent = item.holderid;
-        row.appendChild(holderIdCell);
+          const currentValueCell = document.createElement('td');
+          currentValueCell.textContent = item.currentValue;
+          row.appendChild(currentValueCell);
 
-        const notesCell = document.createElement('td');
-        notesCell.textContent = item.notes;
-        row.appendChild(notesCell);
+          const holderIdCell = document.createElement('td');
+          holderIdCell.textContent = item.holderid;
+          row.appendChild(holderIdCell);
 
-        const purchaseDtTmCell = document.createElement('td');
-        purchaseDtTmCell.textContent = item.purchaseDtTm;
-        row.appendChild(purchaseDtTmCell);
+          const notesCell = document.createElement('td');
+          notesCell.textContent = item.notes;
+          row.appendChild(notesCell);
 
-        const purchasePriceCell = document.createElement('td');
-        purchasePriceCell.textContent = item.purchasePrice;
-        row.appendChild(purchasePriceCell);
+          const purchaseDtTmCell = document.createElement('td');
+          purchaseDtTmCell.textContent = item.purchaseDtTm;
+          row.appendChild(purchaseDtTmCell);
 
-        const qtyCell = document.createElement('td');
-        qtyCell.textContent = item.qty;
-        row.appendChild(qtyCell);
+          const purchasePriceCell = document.createElement('td');
+          purchasePriceCell.textContent = item.purchasePrice;
+          row.appendChild(purchasePriceCell);
 
-        const valuationDtTmCell = document.createElement('td');
-        valuationDtTmCell.textContent = item.valuationDtTm;
-        row.appendChild(valuationDtTmCell);
+          const qtyCell = document.createElement('td');
+          qtyCell.textContent = item.qty;
+          row.appendChild(qtyCell);
 
-        tableBody.appendChild(row);
-      });
+          const valuationDtTmCell = document.createElement('td');
+          valuationDtTmCell.textContent = item.valuationDtTm;
+          row.appendChild(valuationDtTmCell);
+
+          tableBody.appendChild(row);
+        });
+      }
+    }
+
+    function buyR9Coins() {
+      alert("Redirecting to buy R9Coins...");
+      // Implement the redirection or logic to buy R9Coins here
     }
 
     // Fetch and display data when the page loads
