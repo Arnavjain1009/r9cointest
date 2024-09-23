@@ -317,9 +317,13 @@
 
         const data = await response.json();
 
-        // Alert the response from the API
-        alert(data.message || "Response received.");
-        
+        // Alert the response from the API including the coin_id
+        if (response.ok) {
+          alert(`New Coin created! Coin ID: ${data.coin_id}`);
+        } else {
+          alert(data.message || "Response received.");
+        }
+
         // Close the modal after submission
         document.getElementById('inputModal').style.display = 'none';
       } catch (error) {
