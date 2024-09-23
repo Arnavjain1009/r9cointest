@@ -80,6 +80,48 @@
     .buy-button:hover {
       background-color: #45a049;
     }
+
+    /* Popup modal styling */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .modal button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal button:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
@@ -108,6 +150,24 @@
   <div class="squircle">
     <h2>Buy R9Coins</h2>
     <button class="buy-button" onclick="buyR9Coins()">Buy Now</button>
+  </div>
+
+  <!-- Generate R9Coin Modal -->
+  <div id="generateModal" class="modal">
+    <div class="modal-content">
+      <h2>Generate R9Coin?</h2>
+      <button onclick="showInputsModal()">Generate</button>
+    </div>
+  </div>
+
+  <!-- Input Modal for coin_qty and holder_id2 -->
+  <div id="inputModal" class="modal">
+    <div class="modal-content">
+      <h2>Enter Details</h2>
+      <input type="number" id="coin_qty" placeholder="Coin Quantity">
+      <input type="text" id="holder_id2" placeholder="Holder ID 2">
+      <button onclick="submitCoinData()">Submit</button>
+    </div>
   </div>
 
   <script>
@@ -140,9 +200,9 @@
 
         const adminData = await adminResponse.json();
 
-        // Only show an alert if the response contains {"IsAdmin":"YES"}
+        // If the response contains {"IsAdmin":"YES"}, open the generate modal
         if (adminResponse.ok && adminData.IsAdmin === 'YES') {
-          alert('You are an admin.');
+          openGenerateModal();
         }
 
         // Now, fetch the coin data from /myCoins
@@ -218,6 +278,53 @@
     function buyR9Coins() {
       alert("Redirecting to buy R9Coins...");
       // Implement the redirection or logic to buy R9Coins here
+    }
+
+    // Function to show the generate modal
+    function openGenerateModal() {
+      document.getElementById('generateModal').style.display = 'block';
+    }
+
+    // Function to show the input modal after clicking Generate
+    function showInputsModal() {
+      document.getElementById('generateModal').style.display = 'none'; // Hide the generate modal
+      document.getElementById('inputModal').style.display = 'block'; // Show the input modal
+    }
+
+    // Function to submit coin data from the input modal
+    async function submitCoinData() {
+      const holderId = getCookie('holder_id');
+      const sessionId = getCookie('session_id');
+      const coinQty = document.getElementById('coin_qty').value;
+      const holderId2 = document.getElementById('holder_id2').value;
+
+      if (!coinQty || !holderId2) {
+        alert("Please fill out both fields.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('holder_id', holderId);
+      formData.append('session_id', sessionId);
+      formData.append('coin_qty', coinQty);
+      formData.append('holder_id2', holderId2);
+
+      try {
+        const response = await fetch('https://r9j.pythonanywhere.com/coin/create', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        // Alert the response from the API
+        alert(data.message || "Response received.");
+        
+        // Close the modal after submission
+        document.getElementById('inputModal').style.display = 'none';
+      } catch (error) {
+        console.error('Error creating coins:', error);
+      }
     }
 
     // Fetch and display data when the page loads
