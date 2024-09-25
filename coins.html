@@ -156,10 +156,16 @@
   <div id="generateModal" class="modal">
     <div class="modal-content">
       <h2>Generate R9Coin?</h2>
-      <button onclick="showInputsModal()">Generate</button>
+     <button onclick="showInputsModal()">Generate</button> 
+    
+     <button onclick="showR9Coinrequests()">Generate</button> 
     </div>
   </div>
-
+  function showR9Coinrequests() {
+    alert("Redirecting to buy R9Coins...");
+    window.location.href = 'viewcoinrequests.html';
+    // Implement the redirection or logic to buy R9Coins here
+  }
   <!-- Input Modal for coin_qty and holder_id2 -->
   <div id="inputModal" class="modal">
     <div class="modal-content">
@@ -274,9 +280,13 @@
         });
       }
     }
-
+    function showR9Coinrequests() {
+  
+    window.location.href = 'viewcoinrequests.html';
+    // Implement the redirection or logic to buy R9Coins here
+  }
     function buyR9Coins() {
-      
+      alert("Redirecting to buy R9Coins...");
       window.location.href = 'buycoins.html';
       // Implement the redirection or logic to buy R9Coins here
     }
