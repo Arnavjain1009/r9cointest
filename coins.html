@@ -98,6 +98,7 @@
       margin: 15% auto;
       padding: 20px;
       border-radius: 10px;
+      position: relative;
       width: 80%;
       max-width: 400px;
     }
@@ -122,16 +123,41 @@
     .modal button:hover {
       background-color: #45a049;
     }
+
+    /* Close button (X) */
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
   </style>
 </head>
 <body>
   <h1>Coin Data Table</h1>
+  <!-- Price and Chart button container -->
+<div class="price-container">
+ 
+  <button class="buy-button" id="show-chart">Show r9coin price Chart</button>
+</div>
+
+<div class="chart-container" id="chart-container" style="display: none;">
+  <img id="chart-image" src="" alt="Chart">
+</div>
+
   <div class="table-container">
     <table id="data-table">
       <thead>
         <tr>
           <th>Coin ID</th>
-          <th>Current Value</th>
+          <th>Current Price</th>
           <th>Holder ID</th>
           <th>Notes</th>
           <th>Purchase DateTime</th>
@@ -155,20 +181,17 @@
   <!-- Generate R9Coin Modal -->
   <div id="generateModal" class="modal">
     <div class="modal-content">
+      <span class="close" onclick="closeModal('generateModal')">&times;</span>
       <h2>Generate R9Coin?</h2>
-     <button onclick="showInputsModal()">Generate</button> 
-    
-     <button onclick="showR9Coinrequests()">Generate</button> 
+      <button onclick="showInputsModal()">Generate R9COINS</button> 
+      <button onclick="showR9Coinrequests()">VIEW TXN REQUESTS</button> 
     </div>
   </div>
-  function showR9Coinrequests() {
-    alert("Redirecting to buy R9Coins...");
-    window.location.href = 'viewcoinrequests.html';
-    // Implement the redirection or logic to buy R9Coins here
-  }
+ 
   <!-- Input Modal for coin_qty and holder_id2 -->
   <div id="inputModal" class="modal">
     <div class="modal-content">
+      <span class="close" onclick="closeModal('inputModal')">&times;</span>
       <h2>Enter Details</h2>
       <input type="number" id="coin_qty" placeholder="Coin Quantity">
       <input type="text" id="holder_id2" placeholder="Holder ID 2">
@@ -177,6 +200,43 @@
   </div>
 
   <script>
+    // Fetch current price from API
+async function fetchCurrentPrice() {
+  try {
+    const response = await fetch('https://r9j.pythonanywhere.com/currentPrice');
+    const data = await response.json();
+    document.getElementById('current-price').textContent = `Current Price: $${data.price}`;
+  } catch (error) {
+    console.error('Error fetching current price:', error);
+    document.getElementById('current-price').textContent = 'Failed to load price';
+  }
+}
+
+// Fetch chart from API
+async function fetchChart() {
+  try {
+    const response = await fetch('https://r9j.pythonanywhere.com/trend');
+    const data = await response.blob();
+    const imageUrl = URL.createObjectURL(data);
+    document.getElementById('chart-image').src = imageUrl;
+    document.getElementById('chart-container').style.display = 'flex';
+  } catch (error) {
+    console.error('Error fetching chart:', error);
+    alert('Failed to load chart');
+  }
+}
+
+// Event listener for "Show Chart" button
+document.getElementById('show-chart').addEventListener('click', () => {
+  fetchChart();
+});
+
+// Fetch and display data when the page loads
+window.onload = function() {
+  fetchData();
+  fetchCurrentPrice();
+};
+
     // Function to get a cookie value by name
     function getCookie(name) {
       const value = `; ${document.cookie}`;
@@ -198,7 +258,6 @@
       formData.append('session_id', sessionId);
 
       try {
-        // Send POST request to the /holder/isAdmin API
         const adminResponse = await fetch('https://r9j.pythonanywhere.com/holder/isAdmin', {
           method: 'POST',
           body: formData
@@ -206,12 +265,10 @@
 
         const adminData = await adminResponse.json();
 
-        // If the response contains {"IsAdmin":"YES"}, open the generate modal
         if (adminResponse.ok && adminData.IsAdmin === 'YES') {
           openGenerateModal();
         }
 
-        // Now, fetch the coin data from /myCoins
         const coinResponse = await fetch('https://r9j.pythonanywhere.com/myCoins', {
           method: 'POST',
           body: formData
@@ -224,7 +281,6 @@
           return;
         }
 
-        // Populate the table with the coin data
         populateTable(coinData);
 
       } catch (error) {
@@ -235,8 +291,8 @@
     function populateTable(data) {
       const tableBody = document.querySelector('#data-table tbody');
       const emptyMessage = document.getElementById('empty-message');
-      tableBody.innerHTML = ''; // Clear previous data
-      emptyMessage.textContent = ''; // Clear previous message
+      tableBody.innerHTML = ''; 
+      emptyMessage.textContent = '';
 
       if (data.length === 0) {
         emptyMessage.textContent = 'You have no R9Coins.';
@@ -248,9 +304,9 @@
           coinIdCell.textContent = item.coinid;
           row.appendChild(coinIdCell);
 
-          const currentValueCell = document.createElement('td');
-          currentValueCell.textContent = item.currentValue;
-          row.appendChild(currentValueCell);
+          const currentPriceCell = document.createElement('td');
+          currentPriceCell.textContent = item.currentPrice;
+          row.appendChild(currentPriceCell);
 
           const holderIdCell = document.createElement('td');
           holderIdCell.textContent = item.holderid;
@@ -280,15 +336,14 @@
         });
       }
     }
+
     function showR9Coinrequests() {
-  
-    window.location.href = 'viewcoinrequests.html';
-    // Implement the redirection or logic to buy R9Coins here
-  }
+      window.location.href = 'viewcoinrequests.html';
+    }
+
     function buyR9Coins() {
       alert("Redirecting to buy R9Coins...");
       window.location.href = 'buycoins.html';
-      // Implement the redirection or logic to buy R9Coins here
     }
 
     // Function to show the generate modal
@@ -298,11 +353,16 @@
 
     // Function to show the input modal after clicking Generate
     function showInputsModal() {
-      document.getElementById('generateModal').style.display = 'none'; // Hide the generate modal
-      document.getElementById('inputModal').style.display = 'block'; // Show the input modal
+      document.getElementById('generateModal').style.display = 'none';
+      document.getElementById('inputModal').style.display = 'block';
     }
 
-    // Function to submit coin data from the input modal
+    // Function to close the modal
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Function to submit coin data
     async function submitCoinData() {
       const holderId = getCookie('holder_id');
       const sessionId = getCookie('session_id');
@@ -328,14 +388,12 @@
 
         const data = await response.json();
 
-        // Alert the response from the API including the coin_id
         if (response.ok) {
           alert(`New Coin created! Coin ID: ${data.coin_id}`);
         } else {
           alert(data.message || "Response received.");
         }
 
-        // Close the modal after submission
         document.getElementById('inputModal').style.display = 'none';
       } catch (error) {
         console.error('Error creating coins:', error);
