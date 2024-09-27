@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Coin Price & Trend</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .price-container {
+            text-align: center;
+            font-size: 2rem;
+            color: #18831f;
+            margin-top: 20px;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .trend-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .trend-image {
+            max-width: 80%;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+    <script>
+        // Function to fetch current price
+        async function fetchCurrentPrice() {
+            try {
+                const response = await fetch('https://r9j.pythonanywhere.com/currentPrice');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch the current price');
+                }
+
+                const data = await response.json();
+                const priceInPounds = data.price;  // Assuming the API returns a JSON object with a 'price' key
+
+                document.getElementById('price').textContent = `£${priceInPounds}`;
+            } catch (error) {
+                document.getElementById('price').textContent = '';
+                document.querySelector('.error').textContent = 'Error fetching price: ' + error.message;
+            }
+        }
+
+        // Function to fetch trend image
+        async function fetchTrendImage() {
+            try {
+                const response = await fetch('https://r9j.pythonanywhere.com/trend');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch trend image');
+                }
+
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                
+                document.getElementById('trendImage').src = imageUrl;
+            } catch (error) {
+                document.querySelector('.error').textContent = 'Error fetching trend image: ' + error.message;
+            }
+        }
+
+        // Fetch both the price and trend image on page load
+        window.onload = function() {
+            fetchCurrentPrice();
+            fetchTrendImage();
+        }
+    </script>
+</head>
+<body>
+    <h1>Price of 1 R9COIN</h1>
+
+    <!-- Display current price -->
+    <div class="price-container">
+        <span id="price">Loading...</span>
+    </div>
+
+    <!-- Error container -->
+    <div class="error"></div>
+
+    <!-- Trend image container -->
+    <div class="trend-container">
+        <img id="trendImage" class="trend-image" alt="Loading trend data...">
+    </div>
+</body>
+</html>
