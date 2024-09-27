@@ -70,7 +70,7 @@
 
     .squircle {
       width: 300px;
-      height: 200px;
+      height: 90px;
       background-color: #fff;
       border-radius: 30px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -163,7 +163,10 @@
 <div class="chart-container" id="chart-container" style="display: none;">
   <img id="chart-image" src="" alt="Chart">
 </div>
-
+<div class="squircle">
+  <h2>Buy R9Coins</h2>
+  <button class="buy-button" onclick="buyR9Coins()">Buy Now</button>
+</div>
   <div class="table-container">
     <table id="data-table">
       <thead>
@@ -185,10 +188,7 @@
     <div class="empty-message" id="empty-message"></div>
   </div>
 
-  <div class="squircle">
-    <h2>Buy R9Coins</h2>
-    <button class="buy-button" onclick="buyR9Coins()">Buy Now</button>
-  </div>
+
 
   <!-- Generate R9Coin Modal -->
   <div id="generateModal" class="modal">
@@ -303,53 +303,65 @@ document.getElementById('show-chart').addEventListener('click', () => {
     }
 
     function populateTable(data) {
-      const tableBody = document.querySelector('#data-table tbody');
-      const emptyMessage = document.getElementById('empty-message');
-      tableBody.innerHTML = ''; 
-      emptyMessage.textContent = '';
+  const tableBody = document.querySelector('#data-table tbody');
+  const emptyMessage = document.getElementById('empty-message');
+  tableBody.innerHTML = ''; 
+  emptyMessage.textContent = '';
 
-      if (data.length === 0) {
-        emptyMessage.textContent = 'You have no R9Coins.';
-      } else {
-        data.forEach(item => {
-          const row = document.createElement('tr');
+  if (data.length === 0) {
+    emptyMessage.textContent = 'You have no R9Coins.';
+  } else {
+    data.forEach(item => {
+      const row = document.createElement('tr');
 
-          const coinIdCell = document.createElement('td');
-          coinIdCell.textContent = item.coinid;
-          row.appendChild(coinIdCell);
+      const coinIdCell = document.createElement('td');
+      coinIdCell.textContent = item.coinid;
+      row.appendChild(coinIdCell);
 
-          const currentPriceCell = document.createElement('td');
-          currentPriceCell.textContent = item.currentPrice;
-          row.appendChild(currentPriceCell);
+      const currentPriceCell = document.createElement('td');
+      currentPriceCell.textContent = item.currentPrice;
+      row.appendChild(currentPriceCell);
 
-          const holderIdCell = document.createElement('td');
-          holderIdCell.textContent = item.holderid;
-          row.appendChild(holderIdCell);
+      const holderIdCell = document.createElement('td');
+      holderIdCell.textContent = item.holderid;
+      row.appendChild(holderIdCell);
 
-          const notesCell = document.createElement('td');
-          notesCell.textContent = item.notes;
-          row.appendChild(notesCell);
+      const notesCell = document.createElement('td');
+      notesCell.textContent = item.notes;
+      row.appendChild(notesCell);
 
-          const purchaseDtTmCell = document.createElement('td');
-          purchaseDtTmCell.textContent = item.purchaseDtTm;
-          row.appendChild(purchaseDtTmCell);
+      const purchaseDtTmCell = document.createElement('td');
+      purchaseDtTmCell.textContent = item.purchaseDtTm;
+      row.appendChild(purchaseDtTmCell);
 
-          const purchasePriceCell = document.createElement('td');
-          purchasePriceCell.textContent = item.purchasePrice;
-          row.appendChild(purchasePriceCell);
+      const purchasePriceCell = document.createElement('td');
+      purchasePriceCell.textContent = item.purchasePrice;
+      row.appendChild(purchasePriceCell);
 
-          const qtyCell = document.createElement('td');
-          qtyCell.textContent = item.qty;
-          row.appendChild(qtyCell);
+      const qtyCell = document.createElement('td');
+      qtyCell.textContent = item.qty;
+      row.appendChild(qtyCell);
 
-          const valuationDtTmCell = document.createElement('td');
-          valuationDtTmCell.textContent = item.valuationDtTm;
-          row.appendChild(valuationDtTmCell);
+      const valuationDtTmCell = document.createElement('td');
+      valuationDtTmCell.textContent = item.valuationDtTm;
+      row.appendChild(valuationDtTmCell);
 
-          tableBody.appendChild(row);
-        });
-      }
-    }
+      // Create the Sell button
+      const sellCell = document.createElement('td');
+      const sellButton = document.createElement('button');
+      sellButton.textContent = 'Sell';
+      sellButton.classList.add('buy-button');  // You can reuse the 'buy-button' styles or create a new class
+      sellButton.onclick = function() {
+        window.location.href = `sellcoin.html?coin_id=${item.coinid}`;
+      };
+      sellCell.appendChild(sellButton);
+      row.appendChild(sellCell);
+
+      tableBody.appendChild(row);
+    });
+  }
+}
+
 
     function showR9Coinrequests() {
       window.location.href = 'viewcoinrequests.html';
