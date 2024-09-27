@@ -114,7 +114,7 @@
 
         if (response.ok) {
           document.getElementById('response-message').textContent = `Coin sold successfully! you will recieve money next monday Message: ${data.message}`;
-          alert(`Success: ${data.message}`)
+          alert(`Success, you will recieve your money by next monday.: ${data.message}`)
           window.location.href = 'coins.html';;
         } else {
           document.getElementById('response-message').textContent = `Error: ${data.message}`;
