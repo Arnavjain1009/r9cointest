@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy Coin</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -141,6 +142,13 @@
                 document.querySelector('.message').textContent = output;
                 document.querySelector('.message').classList.remove('error');
 
+                // Redirect to coins.html after a successful transaction
+                if (response.ok) {
+                    setTimeout(() => {
+                        window.location.href = 'coins.html';
+                    }, 2000); // Redirect after 2 seconds to give user time to see the message
+                }
+
             } catch (error) {
                 document.querySelector('.message').textContent = 'Error submitting form: ' + error.message;
                 document.querySelector('.message').classList.add('error');
@@ -155,6 +163,7 @@
 <body>
     <h1>Buy Coin</h1>
     <p>Welcome to the Buy Coin page. Please enter the required details below:</p>
+    <p>NOTICE: After buying coin you need to meet up with me to give me the payment. or contact moneyisbroken@gmail.com</p>
 
     <form id="buyCoinForm">
         <label for="coin_qty">Coin Quantity:</label>
