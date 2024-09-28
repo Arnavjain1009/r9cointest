@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R9Coin Menu</title>
+    <style>
+        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
+        .header { position: fixed; top: 0; left: 0; display: flex; align-items: center; padding: 10px; }
+        .hamburger, .back-button { font-size: 24px; background: none; border: none; color: #f97316; cursor: pointer; padding: 10px; }
+        .hamburger { margin-right: 10px; }
+        .modal { display: none; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { margin: 150px auto; padding: 20px; background-color: white; width: 80%; max-width: 300px; text-align: center; border-radius: 10px; }
+        .menu-button { margin: 10px 0; padding: 15px; width: 100%; border: none; border-radius: 9999px; background-color: #f97316; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+        <button class="back-button" onclick="history.back()">←</button>
+    </div>
+
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <button class="menu-button" onclick="window.location.href='contact.html'">Contact</button>
+            <button class="menu-button" onclick="window.location.href='howitworks.html'">How It Works</button>
+            <button class="menu-button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #f97316; text-align: center; }
+        h2 { color: #333; }
+        p { font-size: 18px; line-height: 1.6; }
+        ul { font-size: 18px; line-height: 1.6; padding-left: 20px; }
+        .step-title { font-weight: bold; color: #f97316; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>How It Works</h1>
+        <h2>1. Register an Account</h2>
+        <p>To begin using R9Coin, you need to register an account. During registration, you will be given a <span class="step-title">Holder ID</span>. This Holder ID will be used for logging into your account.</p>
+
+        <h2>2. Login with Holder ID</h2>
+        <p>Once registered, you can login using your Holder ID and leave the Coin ID field blank for the first time. This will log you into your account.</p>
+
+        <h2>3. Buy R9Coin</h2>
+        <p>To buy R9Coin, you will need to place an order through the platform by entering the quantity of R9Coins you wish to purchase. This will send a request to the R9Coin system.</p>
+        <p>After submitting the request, we will arrange to meet in person, where you will pay the sum of your requested R9Coins.</p>
+
+        <h2>4. Receive R9Coin</h2>
+        <p>Once the payment is made in person, the corresponding amount of R9Coins will be credited to your account. At this point, I will also provide you with a <span class="step-title">Coin ID</span>, which will serve as your new password for future logins.</p>
+
+        <h2>5. Selling R9Coin</h2>
+        <p>If you want to sell R9Coin, you can do so through the platform by placing a sell request. After submitting the request, we will meet in person, and I will give you the money for the R9Coins you've sold.</p>
+
+        <h2>6. Secure Transactions</h2>
+        <p>Remember, all transactions must be completed in person. This ensures the security of both the buyer and the seller.</p>
+    </div>
+</body>
+</html>

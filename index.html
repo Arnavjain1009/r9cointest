@@ -1,4 +1,50 @@
+
+
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R9Coin Menu</title>
+    <style>
+        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
+        .header { position: fixed; top: 0; left: 0; display: flex; align-items: center; padding: 10px; }
+        .hamburger, .back-button { font-size: 24px; background: none; border: none; color: #f97316; cursor: pointer; padding: 10px; }
+        .hamburger { margin-right: 10px; }
+        .modal { display: none; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { margin: 150px auto; padding: 20px; background-color: white; width: 80%; max-width: 300px; text-align: center; border-radius: 10px; }
+        .menu-button { margin: 10px 0; padding: 15px; width: 100%; border: none; border-radius: 9999px; background-color: #f97316; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+        
+    </div>
+
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <button class="menu-button" onclick="window.location.href='contact.html'">Contact</button>
+            <button class="menu-button" onclick="window.location.href='howitworks.html'">How It Works</button>
+            <button class="menu-button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('menuModal');
+        function toggleMenu() { modal.style.display = modal.style.display === 'block' ? 'none' : 'block'; }
+        function logout() {
+            document.cookie.split(";").forEach(c => document.cookie = c.trim().split("=")[0] + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/');
+            window.location.href = 'index.html';
+        }
+        window.onclick = function(event) { if (event.target == modal) modal.style.display = 'none'; }
+    </script>
+</body>
+</html>
+
+
+
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -138,11 +184,35 @@
 </head>
 <body>
     <div class="container">
-        <h1>R9COIN</h1>
+        <h1>R9COIN©</h1>
         <p>The future of currency</p>
         <button onclick="showModal('holderIdModal')" class="btn btn-primary">Login</button>
         <button id="registerBtn" onclick="showModal('registerModal'); checkRegistration()" class="btn btn-secondary">Register Now</button>
+
+        <a href="privacy.html">Privacy Policy</a>
+    
     </div>
+  
+    <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background-color: black; color: white; padding: 20px; text-align: center; font-size: 18px; display: none;">
+        <p>This website uses cookies to ensure you get the best experience. <br>By continuing, you agree to our use of cookies.</p>
+        <button onclick="acceptCookies()" style="padding: 12px 24px; font-size: 16px; background-color: #f97316; color: white; border: none; border-radius: 8px; cursor: pointer;">Accept</button>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            if (!getCookie('cookies_accepted')) {
+                document.getElementById('cookieBanner').style.display = 'block';
+            }
+        }
+    
+        function acceptCookies() {
+            setCookie('cookies_accepted', 'true', 365); // 1 year expiry
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+    </script>
+    
+    
+    
 
     <!-- Holder ID Modal -->
     <div id="holderIdModal" class="modal">
@@ -276,60 +346,94 @@
             }
         });
 
-        // Generate Holder ID
-        async function generateHolderId() {
-            try {
-                const response = await fetch('https://r9j.pythonanywhere.com/holder/create', { method: 'POST' });
-                const result = await response.json();
+ // Generate Holder ID and enforce 5-minute cooldown
+async function generateHolderId() {
+    const registrationTime = getCookie('registration_time');
+    const now = Date.now();
 
-                if (response.ok && result.holder_id) {
-                    document.getElementById('holderIdDisplay').innerHTML = `Your Holder ID is: ${result.holder_id}`;
-                    document.getElementById('createHolderIdBtn').disabled = true;
-                    document.getElementById('createHolderIdBtn').classList.add('btn-disabled');
+    if (registrationTime && now - parseInt(registrationTime) < 5 * 60 * 1000) {
+        // If trying to register within 5 minutes
+        const holderId = getCookie('holder_id');
+        alert(`You just created a Holder ID (${holderId}). It is not allowed to create another one. Wait for 5 minutes, or log in to access your account.`);
+        return;
+    }
 
-                    // Set cookie for registration time
-                    setCookie('registration_time', Date.now(), 1); // 1 day expiry
+    // Proceed to generate new Holder ID
+    try {
+        const response = await fetch('https://r9j.pythonanywhere.com/holder/create', { method: 'POST' });
+        const result = await response.json();
 
-                    setTimeout(() => {
-                        document.getElementById('createHolderIdBtn').disabled = false;
-                        document.getElementById('createHolderIdBtn').classList.remove('btn-disabled');
-                    }, 5 * 60 * 1000); // Re-enable after 5 minutes
-                } else {
-                    document.getElementById('holderIdDisplay').innerHTML = `<span class="error-message">${result.message}</span>`;
-                }
-            } catch (error) {
-                document.getElementById('holderIdDisplay').innerHTML = `<span class="error-message">An error occurred: ${error.message}</span>`;
-            }
+        if (response.ok && result.holder_id) {
+            document.getElementById('holderIdDisplay').innerHTML = `Your Holder ID is: ${result.holder_id}`;
+
+            // Save Holder ID and registration time in cookies (5 min restriction)
+            setCookie('holder_id', result.holder_id, 1); // Store Holder ID
+            setCookie('registration_time', now, 1); // Save current timestamp
+
+            // Disable Holder ID button for 5 minutes
+            document.getElementById('createHolderIdBtn').disabled = true;
+            document.getElementById('createHolderIdBtn').classList.add('btn-disabled');
+
+            // Re-enable button after 5 minutes
+            setTimeout(() => {
+                document.getElementById('createHolderIdBtn').disabled = false;
+                document.getElementById('createHolderIdBtn').classList.remove('btn-disabled');
+            }, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+            alert(`Holder ID ${result.holder_id} created! You cannot generate another one for 5 minutes.`);
+
+            // Optionally prompt to login
+            setTimeout(() => {
+                closeModal('registerModal');
+                showModal('holderIdModal'); // Show login modal
+                document.getElementById('holder_id').value = result.holder_id; // Pre-fill Holder ID in login
+            }, 2000);
+        } else {
+            document.getElementById('holderIdDisplay').innerHTML = `<span class="error-message">${result.message}</span>`;
         }
+    } catch (error) {
+        document.getElementById('holderIdDisplay').innerHTML = `<span class="error-message">An error occurred: ${error.message}</span>`;
+    }
+}
 
-        // Go back to Holder ID Modal
-        function goBack() {
-            closeModal('coinIdModal'); // Close the Coin ID modal
-            showModal('holderIdModal'); // Show the Holder ID modal again
-        }
+// Check registration cooldown and display appropriate message
+function checkRegistration() {
+    const registrationTime = getCookie('registration_time');
+    const now = Date.now();
 
-        // Set a cookie
-        function setCookie(name, value, days) {
-            let expires = "";
-            if (days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
-            }
-            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    if (registrationTime) {
+        const timeElapsed = now - parseInt(registrationTime);
+        if (timeElapsed < 5 * 60 * 1000) { // 5 minutes in milliseconds
+            const holderId = getCookie('holder_id');
+            alert(`You just created a Holder ID (${holderId}). It is not allowed to create another one. Wait for 5 minutes, or log in to access your account.`);
+            document.getElementById('createHolderIdBtn').disabled = true;
+            document.getElementById('createHolderIdBtn').classList.add('btn-disabled');
         }
+    }
+}
 
-        // Get a cookie
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-            }
-            return null;
-        }
+// Helper functions for cookies
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
     </script>
 </body>
 </html>
