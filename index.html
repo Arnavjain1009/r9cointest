@@ -227,22 +227,23 @@
         </div>
     </div>
 
-    <!-- Coin ID Modal -->
-    <div id="coinIdModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('coinIdModal')">&times;</span>
-            <h2>Enter Coin ID</h2>
-            <div id="holderIdDisplayCoin" class="holder-id-display"></div>
-            <form id="coinIdForm">
-                <label for="coin_id">Coin ID</label>
-                <input type="text" id="coin_id" name="coin_id" class="input" maxlength="19" placeholder="xxxx-xxxx-xxxx-xxxx" oninput="formatCoinKey(this)">
-                <button type="submit" class="btn btn-primary">Login</button>
-                <button type="button" onclick="goBack()" class="btn btn-secondary">Back</button>
-            </form>
-            <h3>If you have a new account, don't need to enter coin id</h3>
-            <div id="responseMessage" class="response-message"></div>
-        </div>
+ <!-- Coin ID Modal -->
+<div id="coinIdModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('coinIdModal')">&times;</span>
+        <h2>Enter Coin ID</h2>
+        <div id="holderIdDisplayCoin" class="holder-id-display"></div>
+        <form id="coinIdForm">
+            <label for="coin_id">Coin ID</label>
+            <input type="text" id="coin_id" name="coin_id" class="input" maxlength="19" placeholder="xxxx-xxxx-xxxx-xxxx" oninput="formatCoinKey(this)">
+            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="button" onclick="goBack()" class="btn btn-secondary">Back</button>
+        </form>
+        <h3>If you have a new account, don't need to enter coin id</h3>
+        <div id="responseMessage" class="response-message"></div>
     </div>
+</div>
+
 
     <!-- Register Modal -->
     <div id="registerModal" class="modal">
@@ -255,6 +256,9 @@
     </div>
 
     <script>
+        function goBack() {
+            window.location.href = 'index.html';
+        }
         let registrationCooldown = false;
 
         function showModal(modalId) {
@@ -302,49 +306,49 @@
             showModal('coinIdModal'); // Open the coin ID modal
             document.getElementById('holderIdDisplayCoin').innerText = `Holder ID: ${document.getElementById('holder_id').value}`;
         });
+        
+// Handle the coin ID submission
+document.getElementById('coinIdForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Prevent form from reloading the page
 
-        // Handle the coin ID submission
-        document.getElementById('coinIdForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent form from reloading the page
+    const holderId = document.getElementById('holder_id').value;
+    const coinId = document.getElementById('coin_id').value;
 
-            const holderId = document.getElementById('holder_id').value;
-            const coinId = document.getElementById('coin_id').value;
+    const formData = new FormData();
+    formData.append('holder_id', holderId);
+    formData.append('coin_id', coinId);
 
-            const formData = new FormData();
-            formData.append('holder_id', holderId);
-            formData.append('coin_id', coinId);
-
-            try {
-                const response = await fetch('https://r9j.pythonanywhere.com/login', { // Replace with your API URL
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                const responseMessage = document.getElementById('responseMessage');
-
-                if (response.ok) {
-                    // Save session ID and holder ID in cookies
-                    setCookie('session_id', result.session_id, 1); // 1 day expiry
-                    setCookie('holder_id', holderId, 1); // Store Holder ID
-
-                    responseMessage.innerHTML = `<span>Login successful. Session ID: ${result.session_id}</span>`;
-                    responseMessage.classList.remove('error-message');
-                    responseMessage.classList.add('response-message');
-
-                    // Redirect to coins.html after 0.2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'coins.html';
-                    }, 200);
-                } else {
-                    responseMessage.innerHTML = `<span class="error-message">Error: ${result.message}</span>`;
-                }
-
-            } catch (error) {
-                const responseMessage = document.getElementById('responseMessage');
-                responseMessage.innerHTML = `<span class="error-message">An error occurred: ${error.message}</span>`;
-            }
+    try {
+        const response = await fetch('https://r9j.pythonanywhere.com/login', { // Replace with your API URL
+            method: 'POST',
+            body: formData
         });
+
+        const result = await response.json();
+        const responseMessage = document.getElementById('responseMessage');
+
+        if (response.ok) {
+            // Save session ID and holder ID in cookies
+            setCookie('session_id', result.session_id, 1); // 1 day expiry
+            setCookie('holder_id', holderId, 1); // Store Holder ID
+
+            responseMessage.innerHTML = `<span>Login successful. Session ID: ${result.session_id}</span>`;
+            responseMessage.classList.remove('error-message');
+            responseMessage.classList.add('response-message');
+
+            // Redirect to coins.html with holder_id query parameter
+            setTimeout(() => {
+                window.location.href = `coins.html?holder_id=${holderId}`;
+            }, 200);
+        } else {
+            responseMessage.innerHTML = `<span class="error-message">Error: ${result.message}</span>`;
+        }
+
+    } catch (error) {
+        const responseMessage = document.getElementById('responseMessage');
+        responseMessage.innerHTML = `<span class="error-message">An error occurred: ${error.message}</span>`;
+    }
+});
 
  // Generate Holder ID and enforce 5-minute cooldown
 async function generateHolderId() {
