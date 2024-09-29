@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R9Coin Menu</title>
+    <style>
+        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
+        .header { position: fixed; top: 0; left: 0; display: flex; align-items: center; padding: 10px; }
+        .hamburger, .back-button { font-size: 24px; background: none; border: none; color: #f97316; cursor: pointer; padding: 10px; }
+        .hamburger { margin-right: 10px; }
+        .modal { display: none; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { margin: 150px auto; padding: 20px; background-color: white; width: 80%; max-width: 300px; text-align: center; border-radius: 10px; }
+        .menu-button { margin: 10px 0; padding: 15px; width: 100%; border: none; border-radius: 9999px; background-color: #f97316; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+        <button class="back-button" onclick="history.back()">←</button>
+    </div>
+
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <button class="menu-button" onclick="window.location.href='contact.html'">Contact</button>
+            <button class="menu-button" onclick="window.location.href='howitworks.html'">How It Works</button>
+            <button class="menu-button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Coin Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .info-container {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .info-container div {
+            margin-bottom: 15px;
+        }
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 150px;
+        }
+        .value {
+            display: inline-block;
+            color: #555;
+        }
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Coin Information</h1>
+
+    <div class="info-container">
+        <div>
+            <span class="label">Coin ID:</span>
+            <span class="value" id="coinId"></span>
+        </div>
+        <div>
+            <span class="label">Current Price:</span>
+            <span class="value" id="currentPrice"></span>
+        </div>
+        <div>
+            <span class="label">Quantity:</span>
+            <span class="value" id="quantity"></span>
+        </div>
+        <div>
+            <span class="label">Current Total Value:</span>
+            <span class="value" id="currentTotalValue"></span>
+        </div>
+        <div>
+            <span class="label">Notes:</span>
+            <span class="value" id="notes"></span>
+        </div>
+        <div>
+            <span class="label">Purchase DateTime:</span>
+            <span class="value" id="purchaseDtTm"></span>
+        </div>
+        <div>
+            <span class="label">Purchase Price:</span>
+            <span class="value" id="purchasePrice"></span>
+        </div>
+        <div>
+            <span class="label">Valuation DateTime:</span>
+            <span class="value" id="valuationDtTm"></span>
+        </div>
+
+        <div class="button-container">
+            <button onclick="goBack()">Back to Coins</button>
+            <button onclick="sellCoin()">Sell Coin</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to read URL parameters and display them on the page
+        function displayCoinInfo() {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            document.getElementById('coinId').textContent = urlParams.get('coinId');
+            document.getElementById('currentPrice').textContent = `£${urlParams.get('currentPrice')}`;
+            document.getElementById('quantity').textContent = urlParams.get('quantity');
+            document.getElementById('currentTotalValue').textContent = `£${urlParams.get('currentTotalValue')}`;
+            document.getElementById('notes').textContent = urlParams.get('notes');
+            document.getElementById('purchaseDtTm').textContent = urlParams.get('purchaseDtTm');
+            document.getElementById('purchasePrice').textContent = `£${urlParams.get('purchasePrice')}`;
+            document.getElementById('valuationDtTm').textContent = urlParams.get('valuationDtTm');
+        }
+
+        // Function to go back to the previous page
+        function goBack() {
+            window.history.back();
+        }
+
+        // Function to redirect to the sellcoin page with coin_id as a parameter
+        function sellCoin() {
+            const coinId = document.getElementById('coinId').textContent;
+            window.location.href = `sellcoin.html?coin_id=${coinId}`;
+        }
+
+        // Display the coin information when the page loads
+        window.onload = displayCoinInfo;
+    </script>
+
+</body>
+</html>
