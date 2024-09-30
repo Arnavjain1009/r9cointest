@@ -120,89 +120,92 @@
             color: red;
         }
     </style>
-    <script>
-        // Function to get a cookie by name
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.indexOf(nameEQ) === 0) {
-                    return cookie.substring(nameEQ.length);
-                }
+ <script>
+    // Function to get a cookie by name
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.indexOf(nameEQ) === 0) {
+                return cookie.substring(nameEQ.length);
             }
-            return null;
         }
+        return null;
+    }
 
-        // Function to format the meet_time into 'YYYY-MM-DD HH:MM:SS' format
-        function formatDate(dateInput) {
-            const date = new Date(dateInput);
-            const year = date.getFullYear();
-            const month = ('0' + (date.getMonth() + 1)).slice(-2);
-            const day = ('0' + date.getDate()).slice(-2);
-            const hours = ('0' + date.getHours()).slice(-2);
-            const minutes = ('0' + date.getMinutes()).slice(-2);
-            const seconds = ('0' + date.getSeconds()).slice(-2);
+    // Function to format the meet_time into 'YYYY-MM-DD HH:MM:SS' format
+    function formatDate(dateInput) {
+        const date = new Date(dateInput);
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        const hours = ('0' + date.getHours()).slice(-2);
+        const minutes = ('0' + date.getMinutes()).slice(-2);
+        const seconds = ('0' + date.getSeconds()).slice(-2);
 
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
 
-        // Function to handle form submission
-        async function submitForm(event) {
-            event.preventDefault(); // Prevent default form submission
+    // Set default date to tomorrow for meet_time input
+    function setDefaultMeetTime() {
+        const meetTimeInput = document.getElementById('meet_time');
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        const formattedTomorrow = tomorrow.toISOString().slice(0, 16); // Format as 'YYYY-MM-DDTHH:MM'
+        meetTimeInput.min = formattedTomorrow; // Don't allow past dates
+        meetTimeInput.value = formattedTomorrow; // Set tomorrow as default
+    }
 
-            const coinQty = document.getElementById('coin_qty').value;
-            const meetTime = document.getElementById('meet_time').value;
+    // Function to handle form submission
+    async function submitForm(event) {
+        event.preventDefault(); // Prevent default form submission
 
-            // Get holder_id and session_id from cookies
-            const holder_id = getCookie('holder_id');
-            const session_id = getCookie('session_id');
+        const coinQty = document.getElementById('coin_qty').value;
+        const meetTime = document.getElementById('meet_time').value;
 
-            const formattedMeetTime = formatDate(meetTime);
+        // Get holder_id and session_id from cookies
+        const holder_id = getCookie('holder_id');
+        const session_id = getCookie('session_id');
 
-            const formData = new FormData();
-            formData.append('holder_id', holder_id);
-            formData.append('session_id', session_id);
-            formData.append('coin_qty', coinQty);
-            formData.append('meet_time', meetTime);
-                
-            try {
+        const formattedMeetTime = formatDate(meetTime);
 
-                // Send POST request to the /coin/createrequest API
-                const response = await fetch('https://r9j.pythonanywhere.com//coin/createrequest', {
+        const formData = new FormData();
+        formData.append('holder_id', holder_id);
+        formData.append('session_id', session_id);
+        formData.append('coin_qty', coinQty);
+        formData.append('meet_time', meetTime);
+            
+        try {
+            // Send POST request to the /coin/createrequest API
+            const response = await fetch('https://r9j.pythonanywhere.com//coin/createrequest', {
                 method: 'POST',
                 body: formData
-                });
-                
-                const result = await response.json();
+            });
 
-                const output = `Holder ID: ${holder_id}\n` +
-                               `Session ID: ${session_id}\n` +
-                               `Coin Quantity: ${coinQty}\n` +
-                               `Meet Time: ${formattedMeetTime}\n` +
-                               `HTTP Status: ${response.status}\n` +
-                               `Response: ${JSON.stringify(result, null, 2)}`;
-
-                document.querySelector('.message').textContent = output;
-                document.querySelector('.message').classList.remove('error');
-
-                // Redirect to coins.html after a successful transaction
-                if (response.ok) {
-                    setTimeout(() => {
-                        window.location.href = 'coins.html';
-                    }, 2000); // Redirect after 2 seconds to give user time to see the message
-                }
-
-            } catch (error) {
-                document.querySelector('.message').textContent = 'Error submitting form: ' + error.message;
-                document.querySelector('.message').classList.add('error');
+            // Check for non-200 response
+            if (!response.ok) {
+                throw new Error("System error occurred. Please try again.");
             }
-        }
 
-        window.onload = function() {
-            document.getElementById('buyCoinForm').addEventListener('submit', submitForm);
+            // Successful response, show a user-friendly message
+            document.querySelector('.message').textContent = 'You have successfully booked a meeting time. Thank you! Please remember to bring your Holder ID.';
+            document.querySelector('.message').classList.remove('error');
+
+            // Do not redirect to give time to the user to read the message
+
+        } catch (error) {
+            document.querySelector('.message').textContent = error.message;
+            document.querySelector('.message').classList.add('error');
         }
-    </script>
+    }
+
+    window.onload = function() {
+        setDefaultMeetTime(); // Set default meet time when the page loads
+        document.getElementById('buyCoinForm').addEventListener('submit', submitForm);
+    }
+</script>
 </head>
 <body>
     <h1>Buy Coin</h1>
@@ -217,7 +220,7 @@
         <label for="meet_time">Meeting Time:</label>
         <input type="datetime-local" id="meet_time" name="meet_time" required>
 
-        <button type="submit">Submit</button>
+        <button type="submit">Submit(keep holder id safe)</button>
     </form>
 
     <div class="message"></div>

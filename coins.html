@@ -257,6 +257,23 @@ tr:hover {
     .close:hover {
       color: #000;
     }
+    .small-button {
+  font-size: 0.8em; /* Smaller font size */
+  padding: 5px 10px; /* Reduced padding */
+  margin: 2px; /* Margin between buttons */
+  background-color: blue; /* Blue background */
+  color: white; /* White text */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.small-button:hover {
+  background-color: darkblue; /* Darker blue on hover */
+}
+
+
+
   </style>
 </head>
 <body>
@@ -487,12 +504,13 @@ document.getElementById('toggle-chart').addEventListener('click', toggleChart);
       valuationDtTmCell.textContent = item.valuationDtTm;
       row.appendChild(valuationDtTmCell);
 
+      // Create the buttons cell
+      const buttonCell = document.createElement('td');
+
       // Create the Info button
-      const infoCell = document.createElement('td');
-      infoCell.colSpan = 7; // Make it span across all columns for proper positioning
       const infoButton = document.createElement('button');
       infoButton.textContent = 'Info';
-      infoButton.classList.add('info-button');  
+      infoButton.classList.add('small-button');  
       infoButton.onclick = function() {
         const params = new URLSearchParams({
           coinId: item.coinid,
@@ -506,24 +524,25 @@ document.getElementById('toggle-chart').addEventListener('click', toggleChart);
         });
         window.location.href = `coininfo.html?${params.toString()}`;
       };
-      infoCell.appendChild(infoButton);
-      row.appendChild(infoCell);
+      buttonCell.appendChild(infoButton);
 
       // Create the Sell button
-      const sellCell = document.createElement('td');
       const sellButton = document.createElement('button');
       sellButton.textContent = 'Sell';
-      sellButton.classList.add('buy-button');  
+      sellButton.classList.add('small-button');  
       sellButton.onclick = function() {
         window.location.href = `sellcoin.html?coin_id=${item.coinid}`;
       };
-      sellCell.appendChild(sellButton);
-      row.appendChild(sellCell);
+      buttonCell.appendChild(sellButton);
+
+      // Append the buttons cell to the row
+      row.appendChild(buttonCell);
 
       tableBody.appendChild(row);
     });
   }
 }
+
 
 
 

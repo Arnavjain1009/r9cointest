@@ -384,7 +384,7 @@ async function generateHolderId() {
                 document.getElementById('createHolderIdBtn').classList.remove('btn-disabled');
             }, 5 * 60 * 1000); // 5 minutes in milliseconds
 
-            alert(`Holder ID ${result.holder_id} created! You cannot generate another one for 5 minutes.`);
+            alert(`Holder ID ${result.holder_id} created! keep it safe. You cannot generate another one for 5 minutes.`);
 
             // Optionally prompt to login
             setTimeout(() => {
