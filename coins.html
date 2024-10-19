@@ -322,6 +322,25 @@ tr:hover {
     </table>
     <div class="empty-message" id="empty-message"></div>
   </div>
+<!-- New Table for Sold/Bought Coins -->
+<div class="table-container table-container-sold-bought" style="display: none;">
+  <h3>Sold/Bought Coins</h3>
+  <table id="sold-bought-table">
+    <thead>
+      <tr>
+        <th>Action Type</th>
+        <th>Creation DateTime</th>
+        <th>Meet Time</th>
+        <th>Quantity</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Request data will be inserted here -->
+    </tbody>
+  </table>
+  <div id="sold-bought-empty-message"></div>
+</div>
 
 
 
@@ -509,7 +528,7 @@ document.getElementById('toggle-chart').addEventListener('click', toggleChart);
 
       // Create the Info button
       const infoButton = document.createElement('button');
-      infoButton.textContent = 'Info';
+      infoButton.textContent = 'Sell / info';
       infoButton.classList.add('small-button');  
       infoButton.onclick = function() {
         const params = new URLSearchParams({
@@ -526,14 +545,7 @@ document.getElementById('toggle-chart').addEventListener('click', toggleChart);
       };
       buttonCell.appendChild(infoButton);
 
-      // Create the Sell button
-      const sellButton = document.createElement('button');
-      sellButton.textContent = 'Sell';
-      sellButton.classList.add('small-button');  
-      sellButton.onclick = function() {
-        window.location.href = `sellcoin.html?coin_id=${item.coinid}`;
-      };
-      buttonCell.appendChild(sellButton);
+
 
       // Append the buttons cell to the row
       row.appendChild(buttonCell);
@@ -615,7 +627,132 @@ document.getElementById('toggle-chart').addEventListener('click', toggleChart);
     // Fetch and display data when the page loads
     window.onload = fetchCurrentPrice();
     window.onload = fetchData();
-    
+   
+// Existing functions...
+
+// Function to fetch Sold/Bought Coins from the API and display them
+async function fetchSoldBoughtCoins() {
+  const holderId = getCookie('holder_id');
+  const sessionId = getCookie('session_id');
+
+  if (!holderId || !sessionId) {
+    console.error('Holder ID or Session ID not found in cookies.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('holder_id', holderId);
+  formData.append('session_id', sessionId);
+
+  try {
+    const response = await fetch('https://r9j.pythonanywhere.com/getmyrequests', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      populateSoldBoughtTable(data);
+    } else {
+      alert("Error fetching requests: " + (data.message || 'Unknown error'));
+    }
+
+  } catch (error) {
+    console.error('Error fetching sold/bought coins:', error);
+  }
+}
+
+// Function to populate the Sold/Bought Coins table
+function populateSoldBoughtTable(data) {
+  const tableContainer = document.querySelector('.table-container-sold-bought'); // Select the container
+  const tableBody = document.querySelector('#sold-bought-table tbody');
+  const emptyMessage = document.getElementById('sold-bought-empty-message');
+  tableBody.innerHTML = ''; 
+  emptyMessage.textContent = '';
+
+  // Check if there's data
+  if (data.length === 0) {
+    tableContainer.style.display = 'none'; // Hide the table container
+  } else {
+    tableContainer.style.display = 'block'; // Show the table container
+    emptyMessage.textContent = ''; // Clear the empty message
+
+    data.forEach(item => {
+      const row = document.createElement('tr');
+
+      // Action Type (Buy/Sell)
+      const actionTypeCell = document.createElement('td');
+      actionTypeCell.textContent = item.buySell === "B" ? "Bought" : "Sold"; // Converting "B" and "S"
+      row.appendChild(actionTypeCell);
+
+      // Creation DateTime
+      const createDtTmCell = document.createElement('td');
+      createDtTmCell.textContent = item.createDtTm;
+      row.appendChild(createDtTmCell);
+
+      // Meet Time
+      const meetTimeCell = document.createElement('td');
+      meetTimeCell.textContent = item.meetTime;
+      row.appendChild(meetTimeCell);
+
+      // Quantity
+      const qtyCell = document.createElement('td');
+      qtyCell.textContent = item.qty;
+      row.appendChild(qtyCell);
+
+      // Notes
+      const notesCell = document.createElement('td');
+      notesCell.textContent = item.notes || "N/A"; // Show "N/A" if no notes
+      row.appendChild(notesCell);
+
+      tableBody.appendChild(row);
+    });
+  }
+}
+
+
+
+// Call the fetchSoldBoughtCoins function after loading the page
+window.onload = function() {
+  fetchCurrentPrice();
+  fetchData();
+  fetchSoldBoughtCoins(); // New function call for fetching Sold/Bought data
+};
+async function fetchSoldBoughtCoins() {
+  const holderId = getCookie('holder_id');
+  const sessionId = getCookie('session_id');
+
+  if (!holderId || !sessionId) {
+    console.error('Holder ID or Session ID not found in cookies.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('holder_id', holderId);
+  formData.append('session_id', sessionId);
+
+  try {
+    const response = await fetch('https://r9j.pythonanywhere.com/getmyrequests', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert("Error fetching sold/bought coin data: " + data.message);
+      return;
+    }
+
+    populateSoldBoughtTable(data); // Call the function to populate the table
+
+  } catch (error) {
+    console.error('Error fetching sold/bought coin data:', error);
+  }
+}
+
+
   </script>
 </body>
 </html>

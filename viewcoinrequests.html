@@ -3,62 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R9Coin Menu</title>
+    <title>Transaction Table</title>
     <style>
-        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
-        .header { position: fixed; top: 0; left: 0; display: flex; align-items: center; padding: 10px; }
-        .hamburger, .back-button { font-size: 24px; background: none; border: none; color: #f97316; cursor: pointer; padding: 10px; }
-        .hamburger { margin-right: 10px; }
-        .modal { display: none; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { margin: 150px auto; padding: 20px; background-color: white; width: 80%; max-width: 300px; text-align: center; border-radius: 10px; }
-        .menu-button { margin: 10px 0; padding: 15px; width: 100%; border: none; border-radius: 9999px; background-color: #f97316; color: white; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <button class="hamburger" onclick="toggleMenu()">☰</button>
-        <button class="back-button" onclick="history.back()">←</button>
-    </div>
-
-    <div id="menuModal" class="modal">
-        <div class="modal-content">
-            <button class="menu-button" onclick="window.location.href='contact.html'">Contact</button>
-            <button class="menu-button" onclick="window.location.href='howitworks.html'">How It Works</button>
-            <button class="menu-button" onclick="logout()">Logout</button>
-        </div>
-    </div>
-
-    <script>
-        const modal = document.getElementById('menuModal');
-        function toggleMenu() { modal.style.display = modal.style.display === 'block' ? 'none' : 'block'; }
-        function logout() {
-            document.cookie.split(";").forEach(c => document.cookie = c.trim().split("=")[0] + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/');
-            window.location.href = 'index.html';
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
         }
-        window.onclick = function(event) { if (event.target == modal) modal.style.display = 'none'; }
-    </script>
-</body>
-</html>
-
-
-
-
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Holder and Session ID</title>
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button.delete-btn {
+            background-color: #dc3545;
+        }
+        button:disabled {
+            background-color: #6c757d;
+        }
+        #toggleDeleted {
+            margin-top: 20px;
+        }
+        #holderIdInput {
+            margin-bottom: 10px;
+        }
+    </style>
     <script>
-        // Function to get cookie by name
+        let showDeletedOnly = false;
+        let transactionData = []; // Array to store fetched data
+
+        // Function to get a cookie by name
         function getCookie(name) {
             let cookieArr = document.cookie.split(";");
-            for(let i = 0; i < cookieArr.length; i++) {
+            for (let i = 0; i < cookieArr.length; i++) {
                 let cookiePair = cookieArr[i].split("=");
-                if(name === cookiePair[0].trim()) {
+                if (name === cookiePair[0].trim()) {
                     return decodeURIComponent(cookiePair[1]);
                 }
             }
             return null;
+        }
+
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            let date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
         }
 
         // Function to fetch and post data to API
@@ -66,8 +76,7 @@
             const holder_id = getCookie('holder_id');
             const session_id = getCookie('session_id');
 
-            if(holder_id && session_id) {
-                // Create form data
+            if (holder_id && session_id) {
                 const formData = new FormData();
                 formData.append('holder_id', holder_id);
                 formData.append('session_id', session_id);
@@ -79,7 +88,8 @@
                     });
 
                     const result = await response.json();
-                    displayTable(result); // Pass result to display in the table
+                    transactionData = result; // Store fetched data
+                    displayTable(transactionData);
                 } catch (error) {
                     console.error('Error:', error);
                 }
@@ -93,33 +103,95 @@
             const table = document.getElementById('resultTable');
             table.innerHTML = ''; // Clear the table
 
-            // Add table headers
+            // Create header row
             const headerRow = document.createElement('tr');
-            for (const key in data[0]) {
+            const headers = ['buySell', 'createDtTm', 'holderid', 'meetTime', 'notes', 'qty', 'Actions'];
+            headers.forEach(headerText => {
                 const headerCell = document.createElement('th');
-                headerCell.textContent = key;
+                headerCell.textContent = headerText;
                 headerRow.appendChild(headerCell);
-            }
+            });
             table.appendChild(headerRow);
 
-            // Add table rows
-            data.forEach(item => {
+            // Populate table with data
+            data.forEach((item, index) => {
                 const row = document.createElement('tr');
-                for (const key in item) {
+                row.id = `row-${index}`;
+
+                // Append cells for each item property
+                headers.forEach(header => {
                     const cell = document.createElement('td');
-                    cell.textContent = item[key];
+                    cell.textContent = item[header] !== undefined ? item[header] : ''; // Handle undefined
                     row.appendChild(cell);
-                }
+                });
+
+                // Create delete action cell
+                const deleteCell = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('delete-btn');
+                deleteButton.onclick = function () { deleteRow(index); };
+                deleteCell.appendChild(deleteButton);
+                row.appendChild(deleteCell);
+
                 table.appendChild(row);
             });
+
+            hideHiddenRows();
         }
 
-        // Fetch data when the page is loaded
-        window.onload = fetchData;
+        // Function to delete a row and set a cookie
+        function deleteRow(index) {
+            const row = document.getElementById(`row-${index}`);
+            if (row) {
+                row.style.display = 'none';  // Hide the row immediately
+                setCookie(`hiddenRow-${index}`, 'true', 30); // Set a cookie to hide the row for 30 days
+                alert('Transaction deleted');
+            }
+        }
+
+        // Function to check hidden rows and hide them on load
+        function hideHiddenRows() {
+            const table = document.getElementById('resultTable');
+            for (let i = 0; i < table.rows.length; i++) {
+                const hidden = getCookie(`hiddenRow-${i}`);
+                const row = document.getElementById(`row-${i}`);
+                if (hidden === 'true') {
+                    row.style.display = showDeletedOnly ? '' : 'none';
+                } else if (showDeletedOnly) {
+                    row.style.display = 'none';
+                }
+            }
+        }
+
+        // Toggle view between showing deleted transactions only or all transactions
+        function toggleDeletedRows() {
+            showDeletedOnly = !showDeletedOnly;
+            const toggleButton = document.getElementById('toggleDeleted');
+            toggleButton.textContent = showDeletedOnly ? 'Show All Transactions' : 'Show Deleted Transactions';
+            displayTable(transactionData); // Re-display the data
+        }
+
+        // Function to filter table by holder ID without considering deleted status
+        function filterByHolderId() {
+            const holderIdInput = document.getElementById('holderIdInput').value;
+            const filteredData = transactionData.filter(item => item.holderid == holderIdInput);
+            displayTable(filteredData); // Display filtered data
+        }
+
+        window.onload = function () {
+            fetchData();
+        };
     </script>
 </head>
 <body>
-    <h1>API Response Table</h1>
+    <h1>Transaction Table</h1>
+    <button id="toggleDeleted" onclick="toggleDeletedRows()">Show Deleted Transactions</button>
+    
+    <label for="holderIdInput">Filter by Holder ID:</label>
+    <input type="number" id="holderIdInput" placeholder="Enter Holder ID">
+    <button onclick="filterByHolderId()">Filter</button>
+
     <table id="resultTable" border="1">
         <!-- Table will be dynamically populated -->
     </table>
